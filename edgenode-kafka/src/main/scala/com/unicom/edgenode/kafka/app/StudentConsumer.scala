@@ -12,7 +12,7 @@ import org.apache.spark.streaming.{Seconds, StreamingContext}
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
-object EbuyPlanSalesCitytest {
+object StudentConsumer {
 
   //初始化消费者组
   private val groupid = "student2_consumer_origin"
