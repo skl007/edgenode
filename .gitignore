@@ -1,0 +1,3 @@
+# Project exclude paths
+/edgenode-canal/target/
+/edgenode-kafka/target/
