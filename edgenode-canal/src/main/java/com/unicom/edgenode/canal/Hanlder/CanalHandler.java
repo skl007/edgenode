@@ -62,6 +62,7 @@ public class CanalHandler {
             }
             String rowJson = jsonObject.toJSONString();
             // 发送数据到对应的topic中
+
             MyKafkaSender.send(topic, rowJson);
         }else if (eventType == CanalEntry.EventType.DELETE) {
             List<CanalEntry.Column> beforeColumnsList = rowData.getBeforeColumnsList();

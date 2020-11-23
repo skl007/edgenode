@@ -29,6 +29,7 @@ public class MyKafkaSender {
         if (kafkaProducer == null) {
             kafkaProducer = createKafkaProducer();
         }
+        System.out.println("发送数据到kafka： "+msg);
         kafkaProducer.send(new ProducerRecord<String, String>(topic, msg));
     }
 }

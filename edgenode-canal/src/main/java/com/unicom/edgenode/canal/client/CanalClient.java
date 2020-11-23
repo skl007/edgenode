@@ -23,7 +23,7 @@ public class CanalClient {
             Message message = canalConnector.get(100); //抓取数据
 
             if(message.getEntries().size()==0){
-                System.out.println("没有数据，休息一会");
+//                System.out.println("没有数据，休息一会");
                 try {
                     Thread.sleep(5000);
                 } catch (InterruptedException e) {
