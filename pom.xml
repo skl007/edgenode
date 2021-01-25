@@ -30,6 +30,7 @@
         <httpclient.version>4.5.5</httpclient.version>
         <httpmime.version>4.3.6</httpmime.version>
         <mysql.version>5.1.40</mysql.version>
+        <clickhouse.version>0.2.4</clickhouse.version>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -116,6 +117,12 @@
                 <groupId>mysql</groupId>
                 <artifactId>mysql-connector-java</artifactId>
                 <version>${mysql.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>ru.yandex.clickhouse</groupId>
+                <artifactId>clickhouse-jdbc</artifactId>
+                <version>${clickhouse.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

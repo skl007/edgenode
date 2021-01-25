@@ -18,16 +18,15 @@ object StudentConsumer {
   private val groupid = "student2_consumer_origin"
 
   def main(args: Array[String]): Unit = {
-    val sparkConf: SparkConf = new SparkConf().setAppName("EbuyPlanSalesCity")
+    val sparkConf: SparkConf = new SparkConf().setAppName("StundetConsumer")
       .setMaster("local[*]")
-      .set("spark.streaming.kafka.maxRatePerPartition", "5")
+      .set("spark.streaming.kafka.maxRatePerPartition", "10")
       .set("spark.streaming.backpressure.enabled", "true")
       .set("spark.streaming.stopGracefullyOnShutdown", "true")
     val ssc = new StreamingContext(sparkConf, Seconds(5))
 
     //将要消费的kafka的topic
-    //    val topic = "so_citydif"
-    val topic = "gmall_student2"
+    val topic = "edgenode_student2"
     //查询mysql中是否有偏移量
     val sqlProxy = new SqlProxy()
     val offsetMap = new mutable.HashMap[TopicPartition, Long]()
@@ -60,7 +59,7 @@ object StudentConsumer {
     /*val value = stream.map(item => item.value())
     value.foreachRDD(rdd=>println(rdd.collect().mkString("\n")))*/
     //解析json数据
-    val ebuyDStream = stream.filter(item => item.value().split(",").length == 4).map(item => item.value()).mapPartitions(partition => {
+    val ebuyDStream = stream.filter(item => item.value().split(",").length == 6).map(item => item.value()).mapPartitions(partition => {
       partition.map(item => {
 
         val jsonObject = ParseJsonData.getJsonData(item)
@@ -68,7 +67,9 @@ object StudentConsumer {
         val name = if (jsonObject.containsKey("name")) jsonObject.getString("name").trim else ""
         val id = if (jsonObject.containsKey("id")) jsonObject.getString("id").trim else ""
         val age = if (jsonObject.containsKey("age")) jsonObject.getString("age").trim else ""
-        (eventType, id, name, age)
+        val tableName= if (jsonObject.containsKey("tableName")) jsonObject.getString("tableName").trim else ""
+
+        (eventType, id, name, age,tableName)
       })
     })
 
@@ -87,17 +88,18 @@ object StudentConsumer {
             val id = model._2
             val name = model._3
             val age = model._4
-            println("eventType:" + eventType + " id:" + id + " name:" + name + " age:" + age)
+            val tableName = model._5
+//            println("eventType:" + eventType + " id:" + id + " name:" + name + " age:" + age)
 
             //向ebuy_plansalescity表中插入或更新数据
-            if (eventType == "INSERT") {
-              sqlProxy.executeUpdate(client, "insert into student02(id,name,age)values(?,?,?)",
+            if (eventType == "INSERT" && tableName.equals("student")) {
+              sqlProxy.executeUpdate(client, "insert into student04(id,name,age)values(?,?,?)",
                 Array(id, name, age))
-            } else if (eventType == "UPDATE") {
-              sqlProxy.executeUpdate(client, "update student02 set  name =? ,age =? where id=? ",
+            } else if (eventType == "UPDATE" && tableName.equals("student")) {
+              sqlProxy.executeUpdate(client, s"update student04 set  name =? ,age =? where id=? ",
                 Array(name, age, id))
-            } else if (eventType == "DELETE") {
-              sqlProxy.executeUpdate(client, "DELETE FROM student02 WHERE id =?",
+            } else if (eventType == "DELETE" && tableName.equals("student") ) {
+              sqlProxy.executeUpdate(client, "DELETE FROM student04 WHERE id =?",
                 Array(id))
             }
 

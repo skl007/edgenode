@@ -15,17 +15,17 @@ public class CanalClient {
 
     public static void main(String[] args) {
         //建立连接器
-        CanalConnector canalConnector = CanalConnectors.newSingleConnector(new InetSocketAddress("172.31.10.242", 11111), "example", "", "");
+        CanalConnector canalConnector = CanalConnectors.newSingleConnector(new InetSocketAddress("hadoop102", 11111), "example", "", "");
 
         while(true){
             canalConnector.connect();  //尝试连接
-            canalConnector.subscribe("gmall.*");  //过滤数据
+            canalConnector.subscribe("edgenode.*");  //过滤数据
             Message message = canalConnector.get(100); //抓取数据
 
             if(message.getEntries().size()==0){
-//                System.out.println("没有数据，休息一会");
+//                System.out.println("没有数据,sleep几秒...");
                 try {
-                    Thread.sleep(5000);
+                    Thread.sleep(6000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -34,6 +34,7 @@ public class CanalClient {
                     //只有行变化才处理
                     if(entry.getEntryType().equals(CanalEntry.EntryType.ROWDATA)) {
                         CanalEntry.RowChange rowChange = null;
+
                         try {
                             // 把entry中的数据进行反序列化
                             rowChange = CanalEntry.RowChange.parseFrom(entry.getStoreValue());
@@ -42,9 +43,12 @@ public class CanalClient {
                         }
                         //行集
                         List<CanalEntry.RowData> rowDatasList = rowChange.getRowDatasList();
+                        String sql = rowChange.getSql();
                         CanalEntry.EventType eventType = rowChange.getEventType();//insert update delete
                         String tableName = entry.getHeader().getTableName();
-                        CanalHandler canalHanlder = new CanalHandler(tableName, eventType, rowDatasList);
+                        String databaseName = entry.getHeader().getSchemaName();
+
+                        CanalHandler canalHanlder = new CanalHandler(sql,databaseName,tableName, eventType, rowDatasList);
 
                         canalHanlder.handle();
                     }

@@ -12,7 +12,8 @@ public class MyKafkaSender {
 
     public static KafkaProducer<String, String> createKafkaProducer() {
         Properties properties = new Properties();
-        properties.put("bootstrap.servers", "172.31.10.242:9092,172.31.10.243:9092,172.31.10.244:9092");
+        Properties kafkaProperties = PropertiesUtil.load("config.properties");
+        properties.put("bootstrap.servers", kafkaProperties.getProperty("bootstrap.servers"));
         properties.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
         properties.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
         KafkaProducer<String, String> producer = null;
