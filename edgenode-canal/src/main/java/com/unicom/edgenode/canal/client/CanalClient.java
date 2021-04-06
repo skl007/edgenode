@@ -6,16 +6,20 @@ import com.alibaba.otter.canal.protocol.CanalEntry;
 import com.alibaba.otter.canal.protocol.Message;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.unicom.edgenode.canal.Hanlder.CanalHandler;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.net.InetSocketAddress;
 import java.util.List;
 
+@RestController
 public class CanalClient {
 
-
-    public static void main(String[] args) {
+    @GetMapping("cancel-client")
+    public  void cancelClient(@RequestParam("hostname") String hostname, @RequestParam("port") Integer port, @RequestParam("destination") String destination, @RequestParam("topic") String topic) {
         //建立连接器
-        CanalConnector canalConnector = CanalConnectors.newSingleConnector(new InetSocketAddress("hadoop102", 11111), "example", "", "");
+        CanalConnector canalConnector = CanalConnectors.newSingleConnector(new InetSocketAddress("192.168.1.102", 11111), "example", "", "");
 
         while(true){
             canalConnector.connect();  //尝试连接
@@ -29,10 +33,10 @@ public class CanalClient {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-            }else{
+            } else {
                 for (CanalEntry.Entry entry : message.getEntries()) {
                     //只有行变化才处理
-                    if(entry.getEntryType().equals(CanalEntry.EntryType.ROWDATA)) {
+                    if (entry.getEntryType().equals(CanalEntry.EntryType.ROWDATA)) {
                         CanalEntry.RowChange rowChange = null;
 
                         try {
@@ -48,11 +52,10 @@ public class CanalClient {
                         String tableName = entry.getHeader().getTableName();
                         String databaseName = entry.getHeader().getSchemaName();
 
-                        CanalHandler canalHanlder = new CanalHandler(sql,databaseName,tableName, eventType, rowDatasList);
+                        CanalHandler canalHanlder = new CanalHandler(sql, databaseName, tableName, topic, eventType, rowDatasList);
 
                         canalHanlder.handle();
                     }
-
 
 
                 }
