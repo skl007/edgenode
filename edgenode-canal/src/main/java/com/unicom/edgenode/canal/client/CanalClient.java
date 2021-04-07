@@ -16,8 +16,12 @@ import java.util.List;
 @RestController
 public class CanalClient {
 
+    public static void main(String[] args) {
+        cancelClient("",11111,"","edgenode_student2");
+    }
+
     @GetMapping("cancel-client")
-    public  void cancelClient(@RequestParam("hostname") String hostname, @RequestParam("port") Integer port, @RequestParam("destination") String destination, @RequestParam("topic") String topic) {
+    public static void cancelClient(@RequestParam("hostname") String hostname, @RequestParam("port") Integer port, @RequestParam("destination") String destination, @RequestParam("topic") String topic) {
         //建立连接器
         CanalConnector canalConnector = CanalConnectors.newSingleConnector(new InetSocketAddress("192.168.1.102", 11111), "example", "", "");
 
@@ -52,9 +56,9 @@ public class CanalClient {
                         String tableName = entry.getHeader().getTableName();
                         String databaseName = entry.getHeader().getSchemaName();
 
-                        CanalHandler canalHanlder = new CanalHandler(sql, databaseName, tableName, topic, eventType, rowDatasList);
+                        CanalHandler canalHandler = new CanalHandler(sql, databaseName, tableName, topic, eventType, rowDatasList);
 
-                        canalHanlder.handle();
+                        canalHandler.handle();
                     }
 
 
